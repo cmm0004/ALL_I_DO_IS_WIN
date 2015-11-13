@@ -1,6 +1,7 @@
 from classes import *
 import tweepy, os, datetime, time, random
-from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
+from selenium.common.exceptions import *
+#TimeoutException, NoSuchElementException, ElementNotVisibleException, StaleElementReferenceException
 
 
 #botnumber should be 1, later will need to be a range
@@ -18,7 +19,7 @@ def main():
 
 	while True:
 		
-		win_for_me(bot, webdriver, "#Competition OR #WIN", 5)
+		win_for_me(bot, webdriver, "#winitwednesday", 5)
 		#win_for_me(bot, webdriver, "RT to WIN", 5)
 		#win_for_me(bot, webdriver, "#FreebieFriday OR #giveaway", 5)
 
@@ -27,12 +28,16 @@ def get_selenium_instructions(bot, contest_tweet):
 		print('started instructions')
 	
 		author = ''
+		tweet_id = 0
+		user_mentions = []
 		#ensure we follow the original tweeter if this is not them.
 		if hasattr(contest_tweet, 'retweeted_status'):
 			author = contest_tweet.retweeted_status.author
+			tweet_id = contest_tweet.retweeted_status.id
 			user_mentions = contest_tweet.retweeted_status.entities['user_mentions']
 		else:
 			author = contest_tweet.author
+			tweet_id = contest_tweet.id
 			user_mentions = contest_tweet.entities['user_mentions']
 		#user_mentions is a list of dicts [{}, {}], messy data structure if you ask me.
 		##additional people to follow for the tweet, if any.
@@ -48,7 +53,7 @@ def get_selenium_instructions(bot, contest_tweet):
 
 		people_to_follow = bot.filter_already_following(people_to_follow)
 					
-		newSI = SeleniumIntructions(author.screen_name, people_to_follow, contest_tweet.id)
+		newSI = SeleniumIntructions(author.screen_name, people_to_follow, tweet_id)
 		
 		return newSI
 
