@@ -97,10 +97,12 @@ class Selenium(object):
 			
 
 	def follow_and_retweet(self, selenium_instructions):
-		people_to_follow = selenium_instructions.people_to_follow
-		contest_tweet = selenium_instructions.contest_tweet
+		people_to_follow = selenium_instructions['people_to_follow']
+		statuses = selenium_instructions['statusids']
 		try:
 			self.follow(people_to_follow)
+
+			#hmmm, need the author associated with the status.
 			self.retweet(selenium_instructions)
 		except TimeoutException:
 			raise
