@@ -127,8 +127,9 @@ class Selenium(object):
 		except TimeoutException:
 			raise
 		try:
-			retweetIcon = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "span.Icon.Icon--retweet")))
-			retweetIcon.click()
+			# if this one found, then its likely already retweeted.ProfileTweet-actionButtonUndo.js-actionButton.js-actionRetweet
+
+			retweetIcon = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "button.ProfileTweet-actionButton.js-actionButton.js-actionRetweet")))
 		except TimeoutException:
 			raise
 		try: 
@@ -138,7 +139,7 @@ class Selenium(object):
 		
 		#click
 		try:
-			retweetbtn = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "span.RetweetDialog-retweetActionLabel")))
+			retweetbtn = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "button.btn.primary-btn.retweet-action")))
 		except TimeoutException:
 			raise
 		try: 
