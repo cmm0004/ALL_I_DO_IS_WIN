@@ -61,16 +61,24 @@ def get_selenium_instructions(bot, contest_tweet):
 def win_for_me(bot, webdriver, searchquery, contestcount):
 	contests = bot.search(query=searchquery, lang='en', count=contestcount)
 
+	#if we havent retweeted, then start the retweet process.
 	for contest_tweet in contests:
-		si = get_selenium_instructions(bot, contest_tweet)
-		try:
+		if not contest_tweet.retweeted:
+			si = get_selenium_instructions(bot, contest_tweet)
+
+			try:
 			webdriver.follow_and_retweet(si)
-		except TimeoutException as e:
-			print("contest_tweet: {0} failed with exception: {1}".format(contest_tweet, e))
-			continue
-		except ElementNotVisibleException as e:
-			print("contest_tweet: {0} failed with exception: {1}".format(contest_tweet, e))
-			continue
+			except TimeoutException as e:
+				print("contest_tweet: {0} failed with exception: {1}".format(contest_tweet, e))
+				continue
+			except ElementNotVisibleException as e:
+				print("contest_tweet: {0} failed with exception: {1}".format(contest_tweet, e))
+				continue
+
+		continue
+
+
+		
 main()
 
 
