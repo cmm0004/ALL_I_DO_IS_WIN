@@ -71,6 +71,12 @@ def win_for_me(bot, webdriver, searchquery, contestcount):
 
 	#determine who NOT to follow
 	already_following = get_already_following(bot, parsed_tweets)
+
+	#now need to filter out the ones im already following.
+	parsed_tweets = filter_already_following(parsed_tweets, already_following)
+
+
+
 	
 
 	for contest_tweet in contests:
@@ -149,7 +155,21 @@ def get_already_following(bot, parsed_tweets):
 
 	return already_following
 
+#[]Classes.ParsedTweet -> []Classes.ParsedTweet
+def filter_already_following(parsed_tweets, already_following):
+	#for each ParsedTweet, flag to follow the author, and save
+	#metions that arent already being followed.
+	for parsed_tweet in parsed_tweets:
+		if parsed_tweet.author in already_following:
+			parsed_tweet.follow_author = False
 
+		new_mentions = []
+		for mention in parsed_tweet.mentions:
+			if mention not in already_following:
+				new_mentions.append(mention)
+		parsed_tweet.mentions = new_mentions
+
+	return parsed_tweets
 			
 main()
 
