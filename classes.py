@@ -56,12 +56,26 @@ class Bot(object):
 		return people_to_follow
 
 
+class ParsedTweet(object):
+	
+	def __init__(self, tweet_id, author, mentions):
+		#int
+		self.id = tweet_id
+		#screen_name, string
+		self.author = author
+		#list of strings screen_names
+		self.mentions = mentions
+
+		self.follow_author = True
+
+
 
 
 class Selenium(object):
 
 	def __init__(self):
 		self.driver = None
+	
 	def login(self):
 		self.driver = webdriver.Firefox()
 		self.driver.get("http://www.twitter.com")
@@ -94,19 +108,20 @@ class Selenium(object):
 			
 		except TimeoutException:
 			raise
-			
-
-	def follow_and_retweet(self, selenium_instructions):
-		people_to_follow = selenium_instructions.people_to_follow
-		contest_tweet = selenium_instructions.contest_tweet
+		
+	def follow_and_retweet_from_parsedTweet(self, parsed_tweet):
+		people_to_follow = parsed_tweet.mentions
+		if parsed_tweet.follow_author:
+			people_to_follow.append(parsed_tweet.author)
+		
 		try:
-			self.follow(people_to_follow)
-			self.retweet(selenium_instructions)
+			self.follow_parsedTweet(people_to_follow)
+			self.retweet_parsedTweet(parsed_tweet)
 		except TimeoutException:
 			raise
 		except ElementNotVisibleException:
 			raise
-	def follow(self, people_to_follow):
+	def follow_parsedTweet(self, people_to_follow):
 		for screen_name in people_to_follow:
 
 			self.driver.get("http://www.twitter.com/{0}".format(screen_name))
@@ -119,9 +134,9 @@ class Selenium(object):
 			followbtn.click()
 
 		pass
-	def retweet(self, selenium_instructions):
+	def retweet_parsedTweet(self, parsed_tweet):
 		#on tweet details page
-		self.driver.get("http://www.twitter.com/{0}/status/{1}".format(selenium_instructions.author, selenium_instructions.contest_tweet))
+		self.driver.get("http://www.twitter.com/{0}/status/{1}".format(parsed_tweet.author, parsed_tweet.tweet_id))
 		try:
 			WebDriverWait(self.driver, 10).until(EC.title_contains("Twitter"))
 		except TimeoutException:
@@ -147,4 +162,3 @@ class Selenium(object):
 		except ElementNotVisibleException:
 			raise
 	
-		#click and done
