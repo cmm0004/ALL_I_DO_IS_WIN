@@ -19,43 +19,9 @@ def main():
 
 	while True:
 		
-		win_for_me(bot, webdriver, "#winitwednesday", 50)
+		win_for_me(bot, webdriver, "#FreebieFriday", 50)
 		#win_for_me(bot, webdriver, "RT to WIN", 5)
 		#win_for_me(bot, webdriver, "#FreebieFriday OR #giveaway", 5)
-
-
-def get_selenium_instructions(bot, contest_tweet):
-		print('started instructions')
-	
-		author = ''
-		tweet_id = 0
-		user_mentions = []
-		#ensure we follow the original tweeter if this is not them.
-		if hasattr(contest_tweet, 'retweeted_status'):
-			author = contest_tweet.retweeted_status.author
-			tweet_id = contest_tweet.retweeted_status.id
-			user_mentions = contest_tweet.retweeted_status.entities['user_mentions']
-		else:
-			author = contest_tweet.author
-			tweet_id = contest_tweet.id
-			user_mentions = contest_tweet.entities['user_mentions']
-		#user_mentions is a list of dicts [{}, {}], messy data structure if you ask me.
-		##additional people to follow for the tweet, if any.
-		##sometimes they be like, follow me and @thisguy to win yo.
-		##initialize with the OT - original tweeter.
-		people_to_follow = [author.screen_name]
-
-
-		if len(user_mentions) > 0:
-				for i, val in enumerate(user_mentions):
-					if not val['screen_name'] in people_to_follow:
-						people_to_follow.append(val['screen_name'])
-
-		people_to_follow = bot.filter_already_following(people_to_follow)
-					
-		newSI = SeleniumIntructions(author.screen_name, people_to_follow, tweet_id)
-		
-		return newSI
 
 
 def win_for_me(bot, webdriver, searchquery, contestcount):
@@ -75,23 +41,16 @@ def win_for_me(bot, webdriver, searchquery, contestcount):
 	#now need to filter out the ones im already following.
 	parsed_tweets = filter_already_following(parsed_tweets, already_following)
 
+	for parsed_tweet in parsed_tweets:
 
-
-	
-
-	for contest_tweet in contests:
-		if not contest_tweet.retweeted:
-			si = get_selenium_instructions(bot, contest_tweet)
-
-
-			try:
-			webdriver.follow_and_retweet(si)
-			except TimeoutException as e:
-				print("contest_tweet: {0} failed with exception: {1}".format(contest_tweet, e))
-				continue
-			except ElementNotVisibleException as e:
-				print("contest_tweet: {0} failed with exception: {1}".format(contest_tweet, e))
-				continue
+		try:
+			webdriver.follow_and_retweet_from_parsedTweet(parsed_tweet)
+		except TimeoutException as e:
+			print("contest_tweet: {0} failed with exception: {1}".format(parsed_tweet, e))
+			continue
+		except ElementNotVisibleException as e:
+			print("contest_tweet: {0} failed with exception: {1}".format(parsed_tweet, e))
+			continue
 
 		continue
 
@@ -149,9 +108,9 @@ def get_already_following(bot, parsed_tweets):
 	relationships = bot.check_relationship(people_to_check)
 	
 	already_following = []
-		for relationship in relationships:
-			if relationship.is_following:
-				already_following.append(relationship.screen_name)
+	for relationship in relationships:
+		if relationship.is_following:
+			already_following.append(relationship.screen_name)
 
 	return already_following
 

@@ -56,7 +56,7 @@ class ParsedTweet(object):
 	
 	def __init__(self, tweet_id, author, mentions):
 		#int
-		self.id = tweet_id
+		self.tweet_id = tweet_id
 		#screen_name, string
 		self.author = author
 		#list of strings screen_names
@@ -92,7 +92,7 @@ class Selenium(object):
 			usernameInput.send_keys("funcmasterc")
 			passwordInput.send_keys("Emokid11!")
 			passwordInput.submit()
-		except ElementNotVisibleException:
+		except ElementNotVisibleException as e:
 			usernameInput = self.driver.find_element(By.CSS_SELECTOR, "input#signin-email")
 			passwordInput = self.driver.find_element(By.CSS_SELECTOR, "input#signin-password")
 			usernameInput.send_keys("funcmasterc")
