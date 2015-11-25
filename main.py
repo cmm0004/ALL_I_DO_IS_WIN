@@ -19,7 +19,7 @@ def main():
 
 	while True:
 		
-		win_for_me(bot, webdriver, "#winitwednesday", 5)
+		win_for_me(bot, webdriver, "#winitwednesday", 50)
 		#win_for_me(bot, webdriver, "RT to WIN", 5)
 		#win_for_me(bot, webdriver, "#FreebieFriday OR #giveaway", 5)
 
@@ -59,12 +59,18 @@ def get_selenium_instructions(bot, contest_tweet):
 
 
 def win_for_me(bot, webdriver, searchquery, contestcount):
+
+	#get contest_tweets
 	contests = bot.search(query=searchquery, lang='en', count=contestcount)
 
+	#[]Statuses
+
+	#createParsedTweets
 	#if we havent retweeted, then start the retweet process.
 	for contest_tweet in contests:
 		if not contest_tweet.retweeted:
 			si = get_selenium_instructions(bot, contest_tweet)
+
 
 			try:
 			webdriver.follow_and_retweet(si)
@@ -77,8 +83,49 @@ def win_for_me(bot, webdriver, searchquery, contestcount):
 
 		continue
 
+#[]Tweepy.Status -> []Classes.ParsedTweet
+def statuses_to_parsedTweets(statuses):
+	parsed_tweets = []
+	for contest_tweet in statuses:
+		if not contest_tweet.retweeted:
+			author = determine_author(contest_tweet)
+			mentions = determine_mentions(contest_tweet)
+			tweet_id = determine_id(contest_tweet)
 
+			parsed_tweets.append(ParsedTweet(tweet_id, author, mentions))
+
+	return parsed_tweets
+
+#Tweepy.Status -> string
+def determine_author(contest_tweet):
+	if hasattr(contest_tweet, 'retweeted_status'):
+		return contest_tweet.retweeted_status.author.screen_name
 		
+	return contest_tweet.author.screen_name
+
+#Tweepy.Status -> []string
+def determine_mentions(contest_tweet):
+	mentions = []
+
+	if hasattr(contest_tweet, 'retweeted_status'):
+		user_mentions = contest_tweet.retweeted_status.entities['user_mentions']
+	else:
+		user_mentions = contest_tweet.entities['user_mentions']
+
+	if len(user_mentions) > 0:
+			for i, val in enumerate(user_mentions):
+				if not val['screen_name'] in mentions:
+					mentions.append(val['screen_name'])
+
+	return mentions
+
+#Tweepy.Status -> int
+def determine_id(contest_tweet):
+	if hasattr(contest_tweet, 'retweeted_status'):			
+			return contest_tweet.retweeted_status.id
+			
+	return contest_tweet.id
+			
 main()
 
 
