@@ -6,16 +6,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 
-class SeleniumIntructions(object):
-	
-	def __init__(self, author, people_to_follow, contest_tweet):
-		#[]screen_name, including the author
-		self.people_to_follow = people_to_follow
-		#id
-		self.contest_tweet = contest_tweet
-		#screen_name
-		self.author = author
-
 class APIKeys(object):
  
 	def __init__(self):
@@ -54,6 +44,12 @@ class Bot(object):
 			if relationship.is_following:
 				people_to_follow.remove(relationship.screen_name)
 		return people_to_follow
+
+	#Classes.Bot, []string -> []Tweepy.Relationship
+	def check_relationship(self, people_to_check):
+		return self.bot.lookup_friendships(screen_names=people_to_check)
+		
+
 
 
 class ParsedTweet(object):

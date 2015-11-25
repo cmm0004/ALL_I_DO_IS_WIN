@@ -61,12 +61,18 @@ def get_selenium_instructions(bot, contest_tweet):
 def win_for_me(bot, webdriver, searchquery, contestcount):
 
 	#get contest_tweets
-	contests = bot.search(query=searchquery, lang='en', count=contestcount)
+	statuses = bot.search(query=searchquery, lang='en', count=contestcount)
 
 	#[]Statuses
 
 	#createParsedTweets
-	#if we havent retweeted, then start the retweet process.
+	#[]ParsedTweet
+	parsed_tweets = statuses_to_parsedTweets(statuses)
+
+	#determine who NOT to follow
+	already_following = get_already_following(bot, parsed_tweets)
+	
+
 	for contest_tweet in contests:
 		if not contest_tweet.retweeted:
 			si = get_selenium_instructions(bot, contest_tweet)
@@ -84,6 +90,7 @@ def win_for_me(bot, webdriver, searchquery, contestcount):
 		continue
 
 #[]Tweepy.Status -> []Classes.ParsedTweet
+#filters out already retweeted ones
 def statuses_to_parsedTweets(statuses):
 	parsed_tweets = []
 	for contest_tweet in statuses:
@@ -125,6 +132,24 @@ def determine_id(contest_tweet):
 			return contest_tweet.retweeted_status.id
 			
 	return contest_tweet.id
+
+#[]Classes.ParsedTweet -> []string
+def get_already_following(bot, parsed_tweets):
+	people_to_check = []
+	for parsed_tweet in parsed_tweets:
+		people_to_check.append(parsed_tweet.author)
+		people_to_check.extend(parsed_tweet.mentions)
+	
+	relationships = bot.check_relationship(people_to_check)
+	
+	already_following = []
+		for relationship in relationships:
+			if relationship.is_following:
+				already_following.append(relationship.screen_name)
+
+	return already_following
+
+
 			
 main()
 
